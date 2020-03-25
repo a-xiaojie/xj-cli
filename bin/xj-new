@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+const program = require('commander')
+const chalk = require('chalk')
+const ora = require('ora')
+const fs = require('fs')
+const { vuePage } = require('../libs/vue-template')
+
+program
+  .usage('<command> [name]')
+  .parse(process.argv)
+
+// 当没有输入参数的时候给个提示
+if (program.args.length < 1) return program.help()
+
+const moduleName = program.args[0]
+if (!moduleName) {
+  console.log(chalk.red('\n moduleName should not be empty! \n'))
+  return
+}
+
+var src = fs.statSync('src')
+
+if (src) {
+  const views = fs.statSync('src/views')
+  if (views) {
+    // const module = fs.statSync(`src/views/${moduleName}`)
+    // if (module) {
+    //   console.log(chalk.red('\n 当前模块已存在! \n'))
+    //   return
+    // }
+    fs.mkdir(`src/views/${moduleName}`, err => {
+      if (err) {
+        console.log(err)
+        return false
+      }
+      fs.appendFile(`src/views/${moduleName}/${moduleName}.vue`, vuePage(moduleName), err => {
+        if (err){
+          console.log(err);
+          return false;
+        }
+        console.log(chalk.green(`src/views/${moduleName}/${moduleName}.vue文件创建成功！`))
+      })
+    })
+  }
+  const router = fs.statSync('src/router/index.js')
+  if (router) {
+    fs.readFile('src/router/index.js', (err, data) => {
+      if (err) {
+        console.log(err)
+        return false
+      }
+      const dataString = data.toString()
+      const index = dataString.indexOf('}\n]')
+      const newDataString = dataString.slice(0, index) + `},\n  {
+    path: '/${moduleName}',
+    name: '${moduleName}',
+    component: () => import('../views/${moduleName}/${moduleName}.vue')
+  ` + dataString.slice(index)
+
+      fs.writeFile('src/router/index.js', newDataString, err => {
+        if (err) {
+          console.log(err)
+          return false
+        }
+        console.log(chalk.green('修改成功！'))
+      })
+    })
+  }
+}
+
+
+
+
