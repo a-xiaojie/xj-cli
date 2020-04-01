@@ -12,7 +12,7 @@
     "xj-delete": "bin/xj-delete",
     "xj-list": "bin/xj-list",
     "xj-init": "bin/xj-init",
-    "xj-new": "bin/xj-new"
+    "xj-vPage": "bin/xj-newVuePage"
   },
   "keywords": [],
   "author": "",

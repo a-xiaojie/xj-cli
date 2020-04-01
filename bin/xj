@@ -11,7 +11,7 @@ program
   .command('delete', 'delete a template')
   .command('list', 'list all the templates')
   .command('init', 'generate a new project from a template')
-  .command('new', 'create a new module')
+  .command('vPage', 'create a new vue page')
 
 // 解析命令行参数
 program.parse(process.argv)

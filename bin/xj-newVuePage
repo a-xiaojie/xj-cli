@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+const program = require('commander')
+const chalk = require('chalk')
+const ora = require('ora')
+const fs = require('fs')
+const { vuePage } = require('../libs/vue-template')
+const { log, successLog, errorLog, generateFile, doExistDirectoryCreate, toUpperCase } = require('../libs/utils')
+
+program
+  .usage('<command> [name]')
+  .parse(process.argv)
+
+// 当没有输入参数的时候给个提示
+if (program.args.length < 1) return program.help()
+if (program.args.length > 1) {
+  errorLog('页面组件名称请用驼峰命名')
+  return
+}
+
+let moduleName = program.args[0]
+if (!moduleName) {
+  errorLog('请输入要生成的页面组件名称')
+  return
+}
+moduleName = moduleName.toLowerCase()
+
+let componentVueName = `src/views/${moduleName}/${toUpperCase(moduleName)}.vue`
+const componentDirectory = `src/views/${moduleName}/`
+
+const hasComponentExists = fs.existsSync(componentVueName)
+if (hasComponentExists) {
+  errorLog(`${moduleName}页面组件已存在，请重新输入`)
+  return
+} else {
+  log(`正在生成 view 目录 ${componentDirectory}`)
+  doExistDirectoryCreate(componentDirectory).then(() => {
+    try {
+      log(`正在生成 vue 文件 ${componentVueName}`)
+      generateFile(componentVueName, vuePage(moduleName)).then(() => {
+        successLog('生成成功')
+      })
+    } catch (e) {
+      errorLog(e.message)
+    }
+  })
+}
+
+
+
+
